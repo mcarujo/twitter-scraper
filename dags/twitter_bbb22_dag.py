@@ -37,7 +37,7 @@ with DAG(
         task_id="twitter_extract_bbb22",
         conn_id="twitter_default",
         query="BBB22",
-        file_path="outputs/twitter_bbb22_2022_01_21.csv",
+        file_path="outputs/twitter_bbb22_{{ds}}.csv",
         start_time="2022-01-21T00:00:00.00Z",
         end_time="2022-01-21T23:59:59.00Z",
     )

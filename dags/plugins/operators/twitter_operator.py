@@ -38,9 +38,13 @@ class TwitterOperator(BaseOperator):
         count = 0
         pieces = []
         for pg in hook.run():
-            pieces.append(pg["data"])
-            count = count + len(pg["data"])
-            self.log.info(f"Number of tweets captured: {count}")
+            try:
+                pieces.append(pg["data"])
+                count = count + len(pg["data"])
+                self.log.info(f"Number of tweets captured: {count}")
+            except:
+                self.log.info(f"Stoped the capturation")
+                break
         pd.DataFrame(list(np.concatenate(pieces).reshape(-1))).to_csv(
             self.file_path, index=False
         )
