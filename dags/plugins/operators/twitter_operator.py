@@ -45,7 +45,5 @@ class TwitterOperator(BaseOperator):
             except:
                 self.log.info(f"Stoped the capturation")
                 break
-        pd.DataFrame(list(np.concatenate(pieces).reshape(-1))).to_csv(
-            self.file_path, index=False
-        )
+        pd.DataFrame(list(np.concatenate(pieces).reshape(-1))).to_json(self.file_path)
         self.log.info("Finishing the twitter operator...")

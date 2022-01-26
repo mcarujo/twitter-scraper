@@ -4,8 +4,9 @@ from os.path import join
 import airflow
 from airflow.models import DAG
 from airflow.sensors.http_sensor import HttpSensor
-
+from airflow.providers.apache.hdfs.sensors.web_hdfs import WebHdfsSensor
 from plugins.operators.twitter_operator import TwitterOperator
+from plugins.operators.webhdfs_operator import WebHDFSOperator
 
 default_args = {
     "owner": "Airflow",
@@ -14,8 +15,8 @@ default_args = {
     "email_on_failure": True,
     "email_on_retry": False,
     "email": "mamcarujo@gmail.com",
-    "retries": 1,
-    "retry_delay": timedelta(minutes=15),
+    "retries": 0,
+    # "retry_delay": timedelta(minutes=15),
 }
 
 with DAG(
@@ -36,10 +37,31 @@ with DAG(
     twitter_operator = TwitterOperator(
         task_id="twitter_extract_bbb22",
         conn_id="twitter_default",
-        query="BBB22",
-        file_path="outputs/twitter_bbb22_{{ds}}.csv",
+        query="big brother brasil",
+        file_path="outputs/twitter_bbb22_{{ds}}.json",
         start_time="2022-01-21T00:00:00.00Z",
         end_time="2022-01-21T23:59:59.00Z",
     )
+    is_webhdfs_available = WebHdfsSensor(
+        task_id="is_webhdfs_available", webhdfs_conn_id="webhdfs_default", filepath=""
+    )
 
-    is_twitter_available >> twitter_operator
+    webhdfs_operator = WebHDFSOperator(
+        task_id="webhdfs_upload",
+        webhdfs_conn_id="webhdfs_default",
+        source="outputs/twitter_bbb22_{{ds}}.json",
+        destination="twitter_bbb22_{{ds}}.json",
+    )
+    is_webhdfs_file_uploaded = WebHdfsSensor(
+        task_id="is_webhdfs_file_uploaded",
+        webhdfs_conn_id="webhdfs_default",
+        filepath="twitter_bbb22_{{ds}}.json",
+    )
+
+    (
+        is_twitter_available
+        >> twitter_operator
+        >> is_webhdfs_available
+        >> webhdfs_operator
+        >> is_webhdfs_file_uploaded
+    )
