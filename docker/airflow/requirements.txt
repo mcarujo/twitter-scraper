@@ -1,0 +1,6 @@
+beautifulsoup4==4.10.0
+hdfs>=2.0.0
+apache-airflow-providers-apache-hdfs==2.0.0
+snakebite-py3==3.0.5
+apache-airflow-providers-apache-spark==2.0.3
+pyspark==3.2.1
